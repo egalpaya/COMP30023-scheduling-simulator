@@ -12,7 +12,7 @@ void enqueue(queue_t *queue, void *data);
 void *dequeue(queue_t *queue);
 
 /*  Prints all items in the queue using a given print function  */
-void print_queue(queue_t *queue);
+void print_queue(queue_t *queue, void (*print)(void *data));
 
 /*  Frees all memory associated with a queue    */
 void free_queue(queue_t *queue);
