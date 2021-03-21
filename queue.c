@@ -36,6 +36,8 @@ void enqueue(queue_t *queue, void *data){
 
     if (queue->foot){
         queue->foot->next = node;
+    } else{
+        queue->head = node;
     }
     queue->foot = node;
     queue->length++;
