@@ -1,4 +1,17 @@
-allocate: allocate.c queue.o
-	gcc -o allocate allocate.c queue.o -g
-queue.o: queue.c queue.h
-	gcc -c -Wall queue.c -g
+CC = gcc
+CFLAGS = -Wall -g
+LDFLAGS = -lm
+
+TARGET = allocate
+OBJECTS = allocate.o pqueue.o 
+
+$(TARGET): $(OBJECTS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
+
+
+.PHONY: clean purge
+clean:
+	rm -f *.o
+purge:
+	rm -f *.o
+	rm -f $(TARGET)
