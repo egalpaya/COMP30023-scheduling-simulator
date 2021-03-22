@@ -3,7 +3,7 @@ CFLAGS = -Wall -g
 LDFLAGS = -lm
 
 TARGET = allocate
-OBJECTS = main.o pqueue.o queue.o
+OBJECTS = pqueue.o simulator.o main.o
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJECTS)

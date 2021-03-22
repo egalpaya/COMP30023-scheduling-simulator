@@ -9,7 +9,6 @@
 #include <time.h>
 #include <assert.h>
 #include "pqueue.h"
-#include "queue.h"
 #include "simulator.h"
 
 
@@ -22,11 +21,11 @@ void print_process(void *data){
 
 /*  Reads input, converts lines to process structs, and adds them to a queue */
 /*  Returns the queue   */
-queue_t *read_lines(char filename[]){
+pqueue_t *read_lines(char filename[]){
     FILE *file = fopen(filename, "r");
     assert(file);
 
-    queue_t *queue = create_queue();
+    pqueue_t *queue = create_pqueue();
 
     int time, pid, exec_time;
     char parallel;
@@ -39,7 +38,7 @@ queue_t *read_lines(char filename[]){
         process->remaining_time = exec_time;
         process->parallel = (parallel == 'p');
 
-        q_enqueue(queue, process);
+        pq_enqueue(queue, process, process->arrival_time);
     }
 
     return queue;
@@ -66,7 +65,7 @@ int main(int argc, char *argv[]){
         }
     }
 
-    queue_t *queue = read_lines(filename);
+    pqueue_t *queue = read_lines(filename);
 
     return 0;
 }
