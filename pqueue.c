@@ -57,6 +57,10 @@ void pq_enqueue(pqueue_t *queue, void *data, int priority){
 /*  Remove an item from front of queue
     Returns a pointer to the item       */
 void *pq_dequeue(pqueue_t *queue){
+    if (queue->num_items == 0){
+        return NULL;
+    }
+
     pnode_t *node = queue->nodes[1];
 
     // swap with last element
