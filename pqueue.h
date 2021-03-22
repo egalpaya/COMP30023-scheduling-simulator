@@ -11,20 +11,20 @@ typedef struct pqueue_node pnode_t;
 pqueue_t *create_pqueue();
 
 /*  Add an item to priority queue    */
-void enqueue(pqueue_t *queue, void *data, int priority);
+void pq_enqueue(pqueue_t *queue, void *data, int priority);
 
 /*  Remove an item from front of queue
     Returns a pointer to the item       */
-void *dequeue(pqueue_t *queue);
+void *pq_dequeue(pqueue_t *queue);
 
 /*  Prints all items in the queue using a given print function  */
-void print_queue(pqueue_t *queue, void (*print)(void *data));
+void pq_print_queue(pqueue_t *queue, void (*print)(void *data));
 
 /*  Updates the priority of an item in the queue    */
 void update(pqueue_t *queue, int index, int priority);
 
 /*  Frees all memory associated with a queue    */
-void free_queue(pqueue_t *queue);
+void pq_free_queue(pqueue_t *queue);
 
 /*  Repeatedly performs upheap operations on an item until it is at its */
 /*  highest allowed position    */

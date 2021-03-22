@@ -36,7 +36,7 @@ pqueue_t *create_pqueue(){
 }
 
 /*  Add an item to priority queue    */
-void enqueue(pqueue_t *queue, void *data, int priority){
+void pq_enqueue(pqueue_t *queue, void *data, int priority){
     if (queue->num_items == queue->size){
         queue->size = (queue->size)*2;
         queue->nodes = (pnode_t **)realloc(queue->nodes, 
@@ -56,7 +56,7 @@ void enqueue(pqueue_t *queue, void *data, int priority){
 
 /*  Remove an item from front of queue
     Returns a pointer to the item       */
-void *dequeue(pqueue_t *queue){
+void *pq_dequeue(pqueue_t *queue){
     pnode_t *node = queue->nodes[1];
 
     // swap with last element
@@ -70,7 +70,7 @@ void *dequeue(pqueue_t *queue){
 }
 
 /*  Prints all items in the queue using a given print function  */
-void print_queue(pqueue_t *queue, void (*print)(void *data)){
+void pq_print_queue(pqueue_t *queue, void (*print)(void *data)){
     printf("Printing queue...\n");
     for (int i = 1; i <= queue->num_items; i++){
         print(queue->nodes[i]->data);
@@ -88,7 +88,7 @@ void update(pqueue_t *queue, int index, int priority){
 }
 
 /*  Frees all memory associated with a queue    */
-void free_queue(pqueue_t *queue){
+void pq_free_queue(pqueue_t *queue){
     for (int i = 1; i <= queue->num_items; i++){
         free(queue->nodes[i]);
     }
