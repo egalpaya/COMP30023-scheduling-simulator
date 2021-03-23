@@ -147,7 +147,7 @@ void downheap(pqueue_t *queue, int i){
     }
 }
 
-/* Returns the (existing) index of node with lower priority */
+/*  Returns the (existing) index of node with lower priority */
 int minNode(pqueue_t *queue, int i, int j){
 
     if (i >= queue->size){
@@ -159,4 +159,18 @@ int minNode(pqueue_t *queue, int i, int j){
     } else {
         return i;
     }
+}
+
+/*  Returns number of items in queue    */
+int get_length(pqueue_t *queue){
+    return queue->num_items;
+}
+
+/*  Returns the head of queue without removing it   */
+void *pq_peek(pqueue_t *queue){
+    if (queue->num_items == 0){
+        return NULL;
+    } else {
+        return queue->nodes[1]->data;
+    } 
 }

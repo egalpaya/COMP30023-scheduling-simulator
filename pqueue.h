@@ -36,3 +36,9 @@ void downheap(pqueue_t *queue, int index);
 
 /* Returns the (existing) index of node with lower priority */
 int minNode(pqueue_t *queue, int i, int j);
+
+/*  Returns number of items in queue    */
+int get_length(pqueue_t *queue);
+
+/*  Returns the head of queue without removing it   */
+void *pq_peek(pqueue_t *queue);
