@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <stdarg.h>
 #include "pqueue.h"
 
 #define INITIAL_SIZE 2
@@ -19,11 +20,13 @@ struct pqueue{
 
 struct pqueue_node{
     void *data;
-    int priority;
+    int *priorities;
+    int priority_dims;
 };
 
 /*  Create an empty queue   */
 pqueue_t *create_pqueue(){
+
     pqueue_t *q = (pqueue_t *)malloc(sizeof(pqueue_t));
     assert(q);
 
@@ -35,9 +38,14 @@ pqueue_t *create_pqueue(){
     return q;
 }
 
-/*  Add an item to priority queue    */
-void pq_enqueue(pqueue_t *queue, void *data, int priority){
-    if (queue->num_items == queue->size){
+/*  Add an item to priority queue                                           */
+/*  Items can have multiple priority dimensions                             */
+/*  num_priorities is the number of such dimensions                         */
+/*  Subsequent args are the priorities, with the most important ones first  */
+void pq_enqueue(pqueue_t *queue, void *data, int num_priorities, ...){
+
+    // -1 is to account for the empty 0 index, as we start at 1
+    if (queue->num_items == queue->size - 1){
         queue->size = (queue->size)*2;
         queue->nodes = (pnode_t **)realloc(queue->nodes, 
                                             (queue->size)*sizeof(pnode_t));
@@ -46,35 +54,50 @@ void pq_enqueue(pqueue_t *queue, void *data, int priority){
 
     pnode_t *node = (pnode_t *)malloc(sizeof(pnode_t));
     assert(node);
+
     node->data = data;
-    node->priority = priority;
+
+    
+    node->priority_dims = num_priorities;
+    node->priorities = (int *)malloc(sizeof(int)*num_priorities);
+    assert(node->priorities);
+
+    // load the array of priorities using stdarg.h macros
+    va_list ap;
+    va_start(ap, num_priorities);
+    for(int i = 0; i < num_priorities; i++){
+        node->priorities[i] = va_arg(ap, int);
+    }
+    va_end(ap);
 
     // pre-increment starts indexing at 1 for easier upheap/downheaps
     queue->nodes[++(queue->num_items)] = node;
-    upheap(queue, queue->num_items);
+    upheap(queue, queue->num_items, 0);
 }
 
-/*  Remove an item from front of queue
-    Returns a pointer to the item       */
+/*  Remove an item from front of queue and returns a pointer to the item    */
 void *pq_dequeue(pqueue_t *queue){
+
     if (queue->num_items == 0){
         return NULL;
     }
 
     pnode_t *node = queue->nodes[1];
 
-    // swap with last element
+    // swap with last element and downheap
     queue->nodes[1] = queue->nodes[queue->num_items--];
-
-    downheap(queue, 1);
+    downheap(queue, 1, 0);
 
     void *data = node->data;
+    free(node->priorities);
     free(node);
+
     return data;
 }
 
 /*  Prints all items in the queue using a given print function  */
 void pq_print_queue(pqueue_t *queue, void (*print)(void *data)){
+
     printf("Printing queue...\n");
     for (int i = 1; i <= queue->num_items; i++){
         print(queue->nodes[i]->data);
@@ -82,50 +105,59 @@ void pq_print_queue(pqueue_t *queue, void (*print)(void *data)){
     printf("\n"); 
 }
 
-/*  Updates the priority of an item in the queue    */
-void update(pqueue_t *queue, int index, int priority){
-    queue->nodes[index]->priority = priority;
+/*  Updates the priority of an item in the queue in the given dimension */
+void update(pqueue_t *queue, int index, int priority, int dim){
 
-    // as upheap and downheap check necessary conditions, only one executes
-    upheap(queue, index);
-    downheap(queue, index);
+    queue->nodes[index]->priorities[dim] = priority;
+
+    // only one of the below executes, the other will do nothing
+    upheap(queue, index, dim);
+    downheap(queue, index, dim);
 }
 
 /*  Frees all memory associated with a queue    */
 void pq_free_queue(pqueue_t *queue){
+
     for (int i = 1; i <= queue->num_items; i++){
+        free(queue->nodes[i]->priorities);
         free(queue->nodes[i]);
     }
+
     free(queue->nodes);
     free(queue);
 }
 
-/*  Repeatedly performs upheap operations on an item until it is at its */
-/*  highest allowed position    */
-void upheap(pqueue_t *queue, int i){
+/*  Repeatedly performs upheap operations on an item until it is at its     */
+/*  highest allowed position with respect to the given priority dimension   */
+void upheap(pqueue_t *queue, int i, int dim){
     
-    if (i == 1){
+    // if the root is reached, or all given priorities are equal, return
+    if (i == 1 || dim >= queue->nodes[i]->priority_dims){
         return;
     }
 
     pnode_t *tmp;
 
-    // Swap node with parent while parent has a greater priority
-    if (queue->nodes[i/2]->priority > queue->nodes[i]->priority){
+    // swap node with parent while parent has a greater priority
+    if (queue->nodes[i/2]->priorities[dim] > queue->nodes[i]->priorities[dim]){
         tmp = queue->nodes[i];
         queue->nodes[i] = queue->nodes[i/2];
         queue->nodes[i/2] = tmp;
 
-        // Recursively call on parent node
-        upheap(queue, i/2);
+        // recursively call on parent node, resetting the dimension to 0
+        upheap(queue, i/2, 0);
+    } else if (queue->nodes[i/2]->priorities[dim] == queue->nodes[i]->priorities[dim]){
+        // current priority dimension is the same, so check the next one
+        upheap(queue, i, dim+1);
     }
 }
 
-/*  Repeatedly performs downheap operations on an item until it is at its */
-/*  lowest allowed position    */
-void downheap(pqueue_t *queue, int i){
-    // Index is already a leaf node
-    if (i > (queue->num_items - 1)/2){
+/*  Repeatedly performs downheap operations on an item until it is at its   */
+/*  lowest allowed position with respect to the given priority dimension    */
+void downheap(pqueue_t *queue, int i, int dim){
+
+    // if index is already a leaf or or all given priorities are equal, return
+    if (i > (queue->num_items)/2 || dim >= queue->nodes[i]->priority_dims){
         return;
     }
 
@@ -133,28 +165,32 @@ void downheap(pqueue_t *queue, int i){
     pnode_t *tmp;
     
     // Get the smallest child 
-    int min_idx = minNode(queue, 2*i, 2*i + 1);
+    int min_idx = min_node(queue, 2*i, 2*i + 1, dim);
     pnode_t *min_node = queue->nodes[min_idx];
     
-    if (node->priority > min_node->priority){
-        // Swap with smallest child
+    if (node->priorities[dim] > min_node->priorities[dim]){
+        // swap with smallest child
         tmp = queue->nodes[i];
         queue->nodes[i] = queue->nodes[min_idx];
         queue->nodes[min_idx] = tmp;
 
-        // Recursively call on the child
-        downheap(queue, min_idx);
+        // recursively call on the child, resetting the dimension to 0
+        downheap(queue, min_idx, 0);
+    } else if (node->priorities[dim] == min_node->priorities[dim]) {
+        // current priority dimension is the same, so check the next one
+        downheap(queue, i, dim+1);
     }
 }
 
-/*  Returns the (existing) index of node with lower priority */
-int minNode(pqueue_t *queue, int i, int j){
+/*  Returns the (existing) index of node with lower priority with respect   */
+/*  to the given priority dimension                                         */
+int min_node(pqueue_t *queue, int i, int j, int dim){
 
-    if (i >= queue->size){
+    if (i >= queue->num_items){
         return j;
-    } else if (j >= queue->size){
+    } else if (j >= queue->num_items){
         return i;
-    } else if (queue->nodes[i]->priority > queue->nodes[j]->priority){
+    } else if (queue->nodes[i]->priorities[dim] > queue->nodes[j]->priorities[dim]){
         return j;
     } else {
         return i;
