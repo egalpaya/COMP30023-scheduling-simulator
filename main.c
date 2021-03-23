@@ -12,12 +12,6 @@
 #include "simulator.h"
 
 
-void print_process(void *data){
-    process_t *process = (process_t *)data;
-    printf("process id: %d, arrival time: %d, remaining: %d, parallel?: %d \n",
-            process->pid, process->arrival_time, process->remaining_time,
-            process->parallel);
-}
 
 /*  Reads input, converts lines to process structs, and adds them to a queue */
 /*  Returns the queue   */
@@ -35,38 +29,46 @@ pqueue_t *read_lines(char filename[]){
 
         process->arrival_time = time;
         process->pid = pid;
+        process->exec_time = exec_time;
         process->remaining_time = exec_time;
         process->parallel = (parallel == 'p');
 
-        pq_enqueue(queue, process, process->arrival_time);
+        pq_enqueue(queue, process, 2, process->arrival_time, process->pid);
     }
-
+    
+    fclose(file);
     return queue;
 }
 
-int main(int argc, char *argv[]){
+/*  Parse command line args */
+void parse_args(int argc, char **argv, char **filename, int *num_processors){
 
-    /*  Parse command line args */
     int option;
-    char *filename = NULL;
-    int num_processors;
     while ((option = getopt(argc, argv, "f:p:c")) != -1){
         switch (option){
             case 'f':
-                filename = optarg;
+                *filename = optarg;
                 break;
             case 'p':
-                num_processors = atoi(optarg);
+                *num_processors = atoi(optarg);
                 break;
             case 'c':
                 break;
             case '?':
-                return 1;
+                exit(EXIT_FAILURE);
         }
     }
+}
 
-    pqueue_t *queue = read_lines(filename);
+int main(int argc, char **argv){
 
+    int num_processors;
+    char *filename = NULL;
+    parse_args(argc, argv, &filename, &num_processors);
+
+    pqueue_t *incoming_processes = read_lines(filename);
+    run_simulation(num_processors, incoming_processes);
+    
     return 0;
 }
 
