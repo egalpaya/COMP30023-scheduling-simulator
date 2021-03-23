@@ -186,9 +186,9 @@ void downheap(pqueue_t *queue, int i, int dim){
 /*  to the given priority dimension                                         */
 int min_node(pqueue_t *queue, int i, int j, int dim){
 
-    if (i >= queue->num_items){
+    if (i > queue->num_items){
         return j;
-    } else if (j >= queue->num_items){
+    } else if (j > queue->num_items){
         return i;
     } else if (queue->nodes[i]->priorities[dim] > queue->nodes[j]->priorities[dim]){
         return j;
@@ -199,11 +199,13 @@ int min_node(pqueue_t *queue, int i, int j, int dim){
 
 /*  Returns number of items in queue    */
 int get_length(pqueue_t *queue){
+
     return queue->num_items;
 }
 
 /*  Returns the head of queue without removing it   */
 void *pq_peek(pqueue_t *queue){
+    
     if (queue->num_items == 0){
         return NULL;
     } else {
