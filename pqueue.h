@@ -4,6 +4,9 @@
 /*  993413                                                                   */
 /*  Min Priority Queue Implementation Header                                 */
 /*****************************************************************************/
+#ifndef PQUEUE_H
+#define PQUEUE_H
+
 typedef struct pqueue pqueue_t;
 typedef struct pqueue_node pnode_t;
 
@@ -45,3 +48,8 @@ int get_length(pqueue_t *queue);
 
 /*  Returns the head of queue without removing it   */
 void *pq_peek(pqueue_t *queue);
+
+/*  Returns the priority of a node at the given index and dimension */
+int get_priority(pqueue_t *queue, int index, int dim);
+
+#endif

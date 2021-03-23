@@ -4,24 +4,7 @@
 /*  993413                                                                   */
 /*  Simulator Header                                                         */
 /*****************************************************************************/
-#include "pqueue.h"
-typedef struct process process_t;
-typedef struct CPU CPU_t;
-
-struct process{
-    int arrival_time;
-    int pid;
-    int exec_time;
-    int remaining_time;
-    int parallel;
-};
-
-struct CPU{
-    int CPU_no;
-    pqueue_t *process_queue;
-    process_t *current_process;
-    int total_remaining_time; 
-};
+#include "structs.h"
 
 /*  Simulates executing the CPUs for 1 second  */
 /*  Returns 0 if all CPUs idle, 1 otherwise */
@@ -45,4 +28,4 @@ CPU_t **init_simulation(int num_processors);
 void kill_simulation(CPU_t **CPUs, int num_processors);
 
 /*  Main simulation loop    */
-void run_simulation(int num_processors, pqueue_t *incoming_processes);
+void run_simulation(int num_processors, pqueue_t *all_processes);

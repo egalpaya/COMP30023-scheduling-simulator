@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
-#include "pqueue.h"
 #include "simulator.h"
 #include "shortest_time.h"
 
@@ -36,7 +35,7 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaroun
         }
         idle = 0;
 
-        // run process, replacing if needed
+        // run process, replacing current one if needed
         if (CPUs[i]->current_process != pq_peek(CPUs[i]->process_queue)){   
             CPUs[i]->current_process = pq_peek(CPUs[i]->process_queue);
             pq_enqueue(started, CPUs[i]->current_process, 1, i);
@@ -63,10 +62,15 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaroun
 
 /*  Prints the started/resumed process to output file   */
 void print_started_processes(pqueue_t *started, int time){
+
     process_t *process;
-    while ((process = (process_t *)pq_dequeue(started))){
+    while (get_length(started) > 0){
+        // we previously assigned the CPU no. as the priority in the queue
+        int CPU_no = get_priority(started, 1, 0);
+        process = (process_t *)pq_dequeue(started);
+
         printf("%d,RUNNING,pid=%d,remaining_time=%d,cpu=%d\n", time, 
-                process->pid, process->remaining_time+1, 0);
+                process->pid, process->remaining_time+1, CPU_no);
     }
 }
 
@@ -138,28 +142,36 @@ void kill_simulation(CPU_t **CPUs, int num_processors){
 }
 
 /*  Main simulation loop    */
-void run_simulation(int num_processors, pqueue_t *incoming_processes){
+void run_simulation(int num_processors, pqueue_t *all_processes){
 
     // initialise simulation and create CPUs
     int time = -1, idle = 0;
-    int num_processes = get_length(incoming_processes);
+    int num_processes = get_length(all_processes);
     double max_overhead = 0, total_overhead = 0, total_turnaround = 0;
     CPU_t **CPUs = init_simulation(num_processors);
 
     // simulate process scheduling/execution until no more processes
-    process_t *next_process = pq_dequeue(incoming_processes);
+    process_t *next_process = NULL;
+    pqueue_t *incoming_processes = create_pqueue();
+
     while(next_process || !idle){
         time++;
 
-        // schedule incoming processes
-        while(next_process && next_process->arrival_time <= time){
-            shortest_time_remaining(next_process, CPUs, num_processors);
-            next_process = pq_dequeue(incoming_processes);
+        // get all processes coming in at current time
+        while((next_process = (process_t *)pq_peek(all_processes)) && 
+                next_process->arrival_time == time){
+            pq_enqueue(incoming_processes, pq_dequeue(all_processes), 1, time);
         }
+
+        // schedule incoming processes
+        shortest_time_remaining(incoming_processes, CPUs, num_processors);
+
+        // run the cpus
         idle = run_cpus(CPUs, num_processors, time, &total_turnaround,
                         &max_overhead, &total_overhead);
     }
     kill_simulation(CPUs, num_processors);
+    pq_free_queue(all_processes);
     pq_free_queue(incoming_processes);
 
     // print stats to 2 d.p.

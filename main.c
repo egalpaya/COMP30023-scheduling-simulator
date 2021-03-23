@@ -66,8 +66,8 @@ int main(int argc, char **argv){
     char *filename = NULL;
     parse_args(argc, argv, &filename, &num_processors);
 
-    pqueue_t *incoming_processes = read_lines(filename);
-    run_simulation(num_processors, incoming_processes);
+    pqueue_t *all_processes = read_lines(filename);
+    run_simulation(num_processors, all_processes);
     
     return 0;
 }

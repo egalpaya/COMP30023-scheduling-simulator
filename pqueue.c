@@ -212,3 +212,13 @@ void *pq_peek(pqueue_t *queue){
         return queue->nodes[1]->data;
     } 
 }
+
+/*  Returns the priority of a node at the given index and dimension */
+int get_priority(pqueue_t *queue, int index, int dim){
+
+    if (queue->nodes[index]){
+        return queue->nodes[index]->priorities[dim];
+    } else {
+        return -1;
+    }
+}

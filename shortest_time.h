@@ -4,4 +4,13 @@
 /*  993413                                                                   */
 /*  Shortest Time Remaining Algorithm Header                                 */
 /*****************************************************************************/
-void shortest_time_remaining(process_t *process, CPU_t **CPUs, int num_processors);
+#include "structs.h"
+
+/*  Schedules incoming processes and assigns them to CPUs using shortest    */
+/*  time remaining algorithm                                                */
+void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
+                            int num_processors);
+
+/*  Returns a priority queue of the incoming processes, sorted by remaining */
+/*  time and then by pid (pseudo heapsort in a way...)                      */
+pqueue_t *sort_processes(pqueue_t *incoming_processes);
