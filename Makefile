@@ -3,7 +3,7 @@ CFLAGS = -Wall -g
 LDFLAGS = -lm
 
 TARGET = allocate
-OBJECTS = pqueue.o shortest_time.o simulator.o main.o
+OBJECTS = pqueue.o process.o shortest_time.o simulator.o main.o
 
 $(TARGET): $(OBJECTS)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
