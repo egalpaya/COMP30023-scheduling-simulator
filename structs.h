@@ -17,6 +17,9 @@ struct process{
     int exec_time;
     int remaining_time;
     int parallel;
+    int subprocess_no;
+    process_t *parent;
+    int remaining_subprocesses;
 };
 
 struct CPU{

@@ -29,21 +29,26 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaroun
 
     int idle = 1;
     for (int i = 0; i < num_processors; i++){
+
         if (CPUs[i]->total_remaining_time == 0){
             // CPU is idle
             continue;
         }
+
         idle = 0;
 
-        // run process, replacing current one if needed
+        // replace current process if new one has higher priority
         if (CPUs[i]->current_process != pq_peek(CPUs[i]->process_queue)){   
             CPUs[i]->current_process = pq_peek(CPUs[i]->process_queue);
             pq_enqueue(started, CPUs[i]->current_process, 1, i);
         }
+
+        // "run" the process
         CPUs[i]->current_process->remaining_time--;
         CPUs[i]->total_remaining_time--;
         
         // update priority of current process
+        // MAYBE MOVE TO SHORTEST TIME ALGORITHM FUNCTION
         update(CPUs[i]->process_queue, 1, CPUs[i]->current_process->remaining_time, 0);
 
         // finish process, removing from process queue
@@ -69,8 +74,14 @@ void print_started_processes(pqueue_t *started, int time){
         int CPU_no = get_priority(started, 1, 0);
         process = (process_t *)pq_dequeue(started);
 
-        printf("%d,RUNNING,pid=%d,remaining_time=%d,cpu=%d\n", time, 
+        // print subprocess no. if process has a parent
+        if (process->parent){
+            printf("%d,RUNNING,pid=%d.%d,remaining_time=%d,cpu=%d\n", time, 
+                process->pid, process->subprocess_no, process->remaining_time+1, CPU_no);
+        } else {
+            printf("%d,RUNNING,pid=%d,remaining_time=%d,cpu=%d\n", time, 
                 process->pid, process->remaining_time+1, CPU_no);
+        }
     }
 }
 
@@ -96,6 +107,23 @@ void finish_processes(pqueue_t *finished, int time, CPU_t **CPUs, int num_proces
     
     process_t *process;
     while ((process = (process_t *)pq_dequeue(finished))){
+
+        // if the process is a subprocess, check if the parent process has remaining subprocesses
+        // if it does, decrement the counter and move on. if not, finish the parent process
+        if (process->parent){
+            
+            process->parent->remaining_subprocesses--;
+
+            if (process->parent->remaining_subprocesses != 0){
+                free(process);
+                continue;
+            } else {
+                process_t *tmp = process;
+                process = process->parent;
+                free(tmp);
+            }
+        }
+
         turnaround = time - process->arrival_time;
         overhead = turnaround/process->exec_time;
 

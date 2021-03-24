@@ -14,3 +14,6 @@ void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
 /*  Returns a priority queue of the incoming processes, sorted by remaining */
 /*  time and then by pid (pseudo heapsort in a way...)                      */
 pqueue_t *sort_processes(pqueue_t *incoming_processes);
+
+/*  Returns the minimum of 2 numbers    */
+int find_min(int a, int b);
