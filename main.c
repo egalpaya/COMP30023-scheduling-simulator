@@ -8,7 +8,8 @@
 #include <unistd.h>
 #include <time.h>
 #include <assert.h>
-#include "pqueue.h"
+#include "structs.h"
+#include "process.h"
 #include "simulator.h"
 
 
@@ -24,16 +25,9 @@ pqueue_t *read_lines(char filename[]){
     int time, pid, exec_time;
     char parallel;
     while((fscanf(file, "%d %d %d %c", &time, &pid, &exec_time, &parallel)) == 4){
-        process_t *process = (process_t *)malloc(sizeof(process_t));
-        assert(process);
 
-        process->arrival_time = time;
-        process->pid = pid;
-        process->exec_time = exec_time;
-        process->remaining_time = exec_time;
-        process->parallel = (parallel == 'p');
-
-        pq_enqueue(queue, process, 2, process->arrival_time, process->pid);
+        process_t *process = create_process(time, pid, exec_time, parallel);
+        pq_enqueue(queue, process, 2, time, pid);
     }
     
     fclose(file);
