@@ -34,10 +34,6 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, pqueue_t *started, pque
         // "run" the process
         CPUs[i]->current_process->remaining_time--;
         CPUs[i]->total_remaining_time--;
-        
-        // update priority of current process
-        // MAYBE MOVE TO SHORTEST TIME ALGORITHM FUNCTION
-        update(CPUs[i]->process_queue, 1, CPUs[i]->current_process->remaining_time, 0);
 
         // finish process, removing from process queue
         if (CPUs[i]->current_process->remaining_time == 0){

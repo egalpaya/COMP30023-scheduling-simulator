@@ -15,7 +15,11 @@
 /*  time remaining algorithm                                                */
 void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs, 
                             int num_processors){
+
+    // update priorities of existing processes
+    update_priorities(CPUs, num_processors);
     
+    // sort incoming processes by remaining time
     pqueue_t *sorted_processes = sort_processes(incoming_processes);
     process_t *process = NULL;
 
@@ -178,4 +182,16 @@ pqueue_t *sort_processes(pqueue_t *incoming_processes){
 int find_min(int a, int b){
     
     return (a > b) ? b : a;
+}
+
+/*  Updates priorities of processes to reflect remaining time   */
+void update_priorities(CPU_t **CPUs, int num_processors){
+
+    for (int i = 0; i < num_processors; i++){
+        
+        // update priority of current process if it exists
+        if (CPUs[i]->current_process){
+            update(CPUs[i]->process_queue, 1, CPUs[i]->current_process->remaining_time, 0);
+        }
+    }
 }

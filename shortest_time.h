@@ -36,6 +36,8 @@ int get_subprocess_length(int exec_time, int num_subprocesses);
 /*  Returns the index of CPU with least remaining execution time    */
 int find_fastest_CPU(CPU_t **CPUs, int num_processors);
 
+/*  Updates priorities of processes to reflect remaining time   */
+void update_priorities(CPU_t **CPUs, int num_processors);
 
 pqueue_t *sort_processes2(pqueue_t *incoming_processes);
 
