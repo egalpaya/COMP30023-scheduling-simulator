@@ -48,6 +48,7 @@ void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
             }
 
             // assign to the CPU
+            //printf("assigning process %d to cpu %d\n", process->pid, fastest);
             pq_enqueue(CPUs[fastest]->process_queue, process, 2, process->remaining_time,
                         process->pid);
             CPUs[fastest]->total_remaining_time += process->remaining_time;

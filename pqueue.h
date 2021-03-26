@@ -39,8 +39,7 @@ void upheap(pqueue_t *queue, int i, int dim);
 /*  lowest allowed position with respect to the given priority dimension    */
 void downheap(pqueue_t *queue, int i, int dim);
 
-/*  Returns the (existing) index of node with lower priority with respect   */
-/*  to the given priority dimension                                         */
+/*  Returns the (existing) index of node with lower priority    */
 int min_node(pqueue_t *queue, int i, int j, int dim);
 
 /*  Returns number of items in queue    */
