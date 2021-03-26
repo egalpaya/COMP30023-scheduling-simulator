@@ -21,7 +21,13 @@ void finish_processes(pqueue_t *finished, int time, double *total_turnaround,
 CPU_t **init_simulation(int num_processors);
 
 /*  Frees variables used in simulation  */
-void kill_simulation(CPU_t **CPUs, int num_processors);
+void kill_simulation(CPU_t **CPUs, int num_processors, pqueue_t *all_processes,
+                    pqueue_t *incoming_processes, pqueue_t *finished, pqueue_t *started);
+
+/*  Print performance statistics to 2 d.p.  */
+void print_statistics(double total_overhead, double max_overhead, double total_turnaround, 
+                    int num_proc_total, int time);
 
 /*  Main simulation loop    */
-void run_simulation(int num_processors, pqueue_t *all_processes);
+void run_simulation(int num_processors, pqueue_t *all_processes, 
+                    void (*scheduler)(pqueue_t *, CPU_t **, int));

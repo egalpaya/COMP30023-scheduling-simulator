@@ -6,17 +6,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <time.h>
 #include <assert.h>
 #include "structs.h"
 #include "process.h"
 #include "simulator.h"
+#include "shortest_time.h"
 
 
 
 /*  Reads input, converts lines to process structs, and adds them to a queue */
 /*  Returns the queue   */
 pqueue_t *read_lines(char filename[]){
+
     FILE *file = fopen(filename, "r");
     assert(file);
 
@@ -35,7 +36,8 @@ pqueue_t *read_lines(char filename[]){
 }
 
 /*  Parse command line args */
-void parse_args(int argc, char **argv, char **filename, int *num_processors){
+void parse_args(int argc, char **argv, char **filename, int *num_processors, 
+                void (**scheduler)(pqueue_t *, CPU_t **, int)){
 
     int option;
     while ((option = getopt(argc, argv, "f:p:c")) != -1){
@@ -47,6 +49,7 @@ void parse_args(int argc, char **argv, char **filename, int *num_processors){
                 *num_processors = atoi(optarg);
                 break;
             case 'c':
+                *scheduler = better_scheduler;
                 break;
             case '?':
                 exit(EXIT_FAILURE);
@@ -56,15 +59,17 @@ void parse_args(int argc, char **argv, char **filename, int *num_processors){
 
 int main(int argc, char **argv){
 
+    // parse args
     int num_processors;
     char *filename = NULL;
-    parse_args(argc, argv, &filename, &num_processors);
+    void (*scheduler)(pqueue_t *, CPU_t **, int) = shortest_time_remaining;
+    parse_args(argc, argv, &filename, &num_processors, &scheduler);
 
     // read in all processes
     pqueue_t *all_processes = read_lines(filename);
 
     // start simulation
-    run_simulation(num_processors, all_processes);
+    run_simulation(num_processors, all_processes, (*scheduler));
     
     return 0;
 }

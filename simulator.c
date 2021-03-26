@@ -101,6 +101,7 @@ void finish_processes(pqueue_t *finished, int time, double *total_turnaround,
             }
         }
 
+        // update statistics
         turnaround = time - process->arrival_time;
         overhead = turnaround/process->exec_time;
 
@@ -149,17 +150,37 @@ CPU_t **init_simulation(int num_processors){
 }
 
 /*  Frees variables used in simulation  */
-void kill_simulation(CPU_t **CPUs, int num_processors){
+void kill_simulation(CPU_t **CPUs, int num_processors, pqueue_t *all_processes,
+                    pqueue_t *incoming_processes, pqueue_t *finished, pqueue_t *started){
     for (int i = 0; i < num_processors; i++){
         pq_free_queue(CPUs[i]->process_queue);
         free(CPUs[i]);
     }
 
+    pq_free_queue(all_processes);
+    pq_free_queue(incoming_processes);
+    pq_free_queue(finished);
+    pq_free_queue(started);
+
     free(CPUs);
 }
 
+/*  Print performance statistics to 2 d.p.  */
+void print_statistics(double total_overhead, double max_overhead, double total_turnaround, 
+                    int num_proc_total, int time){
+    
+    int turnaround = ceil(total_turnaround/num_proc_total);
+    max_overhead = round(max_overhead*100)/100;
+    total_overhead = round(total_overhead*100/num_proc_total)/100;
+    
+    printf("Turnaround time %d\n", turnaround);
+    printf("Time overhead %.2lf %.2lf\n", max_overhead, total_overhead);
+    printf("Makespan %d\n", time);
+}
+
 /*  Main simulation loop    */
-void run_simulation(int num_processors, pqueue_t *all_processes){
+void run_simulation(int num_processors, pqueue_t *all_processes, 
+                    void (*scheduler)(pqueue_t *, CPU_t **, int)){
 
     // initialise simulation and create CPUs
     int time = -1, idle = 0;
@@ -172,7 +193,7 @@ void run_simulation(int num_processors, pqueue_t *all_processes){
     pqueue_t *started = create_pqueue();
     pqueue_t *finished = create_pqueue();
 
-    // simulate process scheduling/execution until no more processes
+    // simulate process scheduling/execution until no more processes exist
     process_t *next_process = NULL;
     pqueue_t *incoming_processes = create_pqueue();
 
@@ -189,7 +210,7 @@ void run_simulation(int num_processors, pqueue_t *all_processes){
         }
 
         // schedule incoming processes
-        shortest_time_remaining(incoming_processes, CPUs, num_processors);
+        scheduler(incoming_processes, CPUs, num_processors);
 
         // run the cpus
         idle = run_cpus(CPUs, num_processors, time, started, finished);
@@ -199,17 +220,7 @@ void run_simulation(int num_processors, pqueue_t *all_processes){
                         &num_proc_left);
     }
     
-    kill_simulation(CPUs, num_processors);
-    pq_free_queue(all_processes);
-    pq_free_queue(incoming_processes);
-    pq_free_queue(finished);
-    pq_free_queue(started);
-
-    // print stats to 2 d.p.
-    printf("Turnaround time %d\n", (int)ceil(total_turnaround/num_proc_total));
-    printf("Time overhead %.2lf %.2lf\n", round(max_overhead*100)/100, 
-                                        round(total_overhead*100/num_proc_total)/100);
-    printf("Makespan %d\n", time);
+    kill_simulation(CPUs, num_processors, all_processes, incoming_processes, finished, started);
+    print_statistics(total_overhead, max_overhead, total_turnaround, num_proc_total, time);
 }
-
 
