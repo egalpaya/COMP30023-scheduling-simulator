@@ -38,7 +38,7 @@ void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
 
         } else {
 
-            // find CPU with least remaning execution time and assign
+            // find CPU with least remaining execution time and assign
             int fastest = 0, time_remaining = INT_MAX;
             for(int i = 0; i < num_processors; i++){
                 if (CPUs[i]->total_remaining_time < time_remaining){

@@ -30,7 +30,7 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaroun
     int idle = 1;
     for (int i = 0; i < num_processors; i++){
 
-        if (CPUs[i]->total_remaining_time == 0){
+        if (!pq_peek(CPUs[i]->process_queue)){
             // CPU is idle
             continue;
         }
@@ -54,12 +54,13 @@ int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaroun
         // finish process, removing from process queue
         if (CPUs[i]->current_process->remaining_time == 0){
             pq_enqueue(finished, pq_dequeue(CPUs[i]->process_queue), 1, i);
+            CPUs[i]->current_process = NULL;
         }
     }
     
+    print_started_processes(started, time);
     finish_processes(finished, time+1, CPUs, num_processors, total_turnaround,
                     max_overhead, total_overhead);
-    print_started_processes(started, time);
     pq_free_queue(finished);
     pq_free_queue(started);
     return idle;
@@ -90,10 +91,7 @@ int num_proc_left(CPU_t **CPUs, int num_processors){
 
     int num = 0;
     for (int i = 0; i < num_processors; i++){
-        num += get_length(CPUs[i]->process_queue);
-        if (CPUs[i]->current_process){
-            num++;
-        }
+        
     }
     return num;
 }
@@ -111,7 +109,7 @@ void finish_processes(pqueue_t *finished, int time, CPU_t **CPUs, int num_proces
         // if the process is a subprocess, check if the parent process has remaining subprocesses
         // if it does, decrement the counter and move on. if not, finish the parent process
         if (process->parent){
-            
+
             process->parent->remaining_subprocesses--;
 
             if (process->parent->remaining_subprocesses != 0){
@@ -188,6 +186,8 @@ void run_simulation(int num_processors, pqueue_t *all_processes){
         // get all processes coming in at current time
         while((next_process = (process_t *)pq_peek(all_processes)) && 
                 next_process->arrival_time == time){
+
+            // remove from all processes queue and add to incoming processes
             pq_enqueue(incoming_processes, pq_dequeue(all_processes), 1, time);
         }
 
@@ -198,6 +198,7 @@ void run_simulation(int num_processors, pqueue_t *all_processes){
         idle = run_cpus(CPUs, num_processors, time, &total_turnaround,
                         &max_overhead, &total_overhead);
     }
+    
     kill_simulation(CPUs, num_processors);
     pq_free_queue(all_processes);
     pq_free_queue(incoming_processes);

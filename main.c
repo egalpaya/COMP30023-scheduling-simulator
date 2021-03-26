@@ -60,7 +60,10 @@ int main(int argc, char **argv){
     char *filename = NULL;
     parse_args(argc, argv, &filename, &num_processors);
 
+    // read in all processes
     pqueue_t *all_processes = read_lines(filename);
+
+    // start simulation
     run_simulation(num_processors, all_processes);
     
     return 0;
