@@ -184,23 +184,23 @@ void downheap(pqueue_t *queue, int i, int dim){
 
 /*  Returns the (existing) index of node with lower priority    */
 int min_node(pqueue_t *queue, int i, int j, int dim){
-
-    if (i > queue->num_items){
-        return j;
-    } else if (j > queue->num_items){
+    
+    if (j > queue->num_items){
         return i;
+    }
+
+    // if there are no more priority dimensions to check, return i
+    if (dim >= queue->nodes[i]->priority_dims || dim >= queue->nodes[j]->priority_dims){
+        return i;
+    }
+
+    if (queue->nodes[i]->priorities[dim] == queue->nodes[j]->priorities[dim]){
+        // if nodes are equal in priority, check next priority dimension
+        return min_node(queue, i, j, dim+1);
     } else if (queue->nodes[i]->priorities[dim] > queue->nodes[j]->priorities[dim]){
         return j;
-    } else if (queue->nodes[i]->priorities[dim] < queue->nodes[j]->priorities[dim]){
-        return i;
     } else {
-        // if items at i and j are equal in all aspects, return i
-        if (dim >= queue->nodes[i]->priority_dims || dim >= queue->nodes[j]->priority_dims){
-            return i;
-        } else{
-            // if not, check the next priority dimension
-            return min_node(queue, i, j, dim+1);
-        }
+        return i;
     }
 }
 
