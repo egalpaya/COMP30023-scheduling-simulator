@@ -8,18 +8,14 @@
 
 /*  Simulates executing the CPUs for 1 second  */
 /*  Returns 0 if all CPUs idle, 1 otherwise */
-int run_cpus(CPU_t **CPUs, int num_processors, int time, double *total_turnaround,
-            double *max_overhead, double *total_overhead);
+int run_cpus(CPU_t **CPUs, int num_processors, int time, pqueue_t *started, pqueue_t *finished);
 
 /*  Prints the started/resumed process to output file   */
 void print_started_processes(pqueue_t *started, int time);
 
-/*  Calculates the number of remaining processes across all CPUs    */
-int num_proc_left(CPU_t **CPUs, int num_processors);
-
 /*  Prints finished processes to output and calculates statistics   */
-void finish_processes(pqueue_t *finished, int time, CPU_t **CPUs, int num_processors, 
-                    double *total_turnaround, double *max_overhead, double *total_overhead);
+void finish_processes(pqueue_t *finished, int time, double *total_turnaround, 
+                    double *max_overhead, double *total_overhead, int *num_proc_left);
 
 /*  Initialises simulation variables, returning pointer to array of CPUs    */
 CPU_t **init_simulation(int num_processors);

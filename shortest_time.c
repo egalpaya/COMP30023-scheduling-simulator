@@ -53,6 +53,8 @@ void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
             CPUs[fastest]->total_remaining_time += process->remaining_time;
         }   
     }
+
+    pq_free_queue(sorted_processes);
 }
 
 /*  Returns a priority queue of the incoming processes, sorted by remaining */
