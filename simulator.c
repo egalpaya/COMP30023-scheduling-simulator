@@ -82,6 +82,7 @@ void finish_processes(pqueue_t *finished, int time, double *total_turnaround,
 
     // first loop calculates statistics and number of finished parent processes, adding 
     // finished processes to a queue
+    int i = 0;
     while ((process = (process_t *)pq_dequeue(finished))){
 
         // if the process is a subprocess, check if the parent process has remaining subprocesses
@@ -112,7 +113,7 @@ void finish_processes(pqueue_t *finished, int time, double *total_turnaround,
 
         num_finished++;
 
-        pq_enqueue(processes, process, 1, 0);
+        pq_enqueue(processes, process, 1, i++);
     }
 
     *num_proc_left -= num_finished;
