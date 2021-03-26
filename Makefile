@@ -1,12 +1,11 @@
 CC = gcc
-CFLAGS = -Wall -g
-LDFLAGS = -lm
+CFLAGS = -Wall -g -lm
 
 TARGET = allocate
 OBJECTS = pqueue.o process.o shortest_time.o simulator.o main.o
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $(TARGET) $(OBJECTS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJECTS)
 
 
 .PHONY: clean purge
