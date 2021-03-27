@@ -10,7 +10,7 @@
 #include <math.h>
 #include <assert.h>
 #include "process.h"
-#include "shortest_time.h"
+#include "schedulers.h"
 
 /*  Schedules incoming processes and assigns them to 2 CPUs using shortest  */
 /*  time remaining algorithm                                                */

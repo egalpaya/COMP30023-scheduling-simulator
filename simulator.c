@@ -9,7 +9,7 @@
 #include <assert.h>
 #include <math.h>
 #include "simulator.h"
-#include "shortest_time.h"
+#include "schedulers.h"
 
 /*  Simulates executing the CPUs for 1 second  */
 /*  Returns 1 if all CPUs idle, 0 otherwise */
