@@ -111,8 +111,8 @@ void update(pqueue_t *queue, int index, int priority, int dim){
     queue->nodes[index]->priorities[dim] = priority;
 
     // only one of the below executes, the other will do nothing
-    upheap(queue, index, dim);
-    downheap(queue, index, dim);
+    upheap(queue, index, 0);
+    downheap(queue, index, 0);
 }
 
 /*  Frees all memory associated with a queue    */
