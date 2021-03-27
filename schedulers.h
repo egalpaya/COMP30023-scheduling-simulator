@@ -57,4 +57,6 @@ pqueue_t *sort_processes_reverse(pqueue_t *incoming_processes);
 /*  Updates priorities of processes to reflect remaining time   */
 void update_priorities_v2(CPU_t **CPUs, int num_processors);
 
+int find_longest_CPU_time(CPU_t **CPUs, int num_processors);
+
 #endif

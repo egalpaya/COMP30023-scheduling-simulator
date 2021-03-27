@@ -97,7 +97,7 @@ void shortest_time_remaining_np(pqueue_t *incoming_processes, CPU_t **CPUs,
 }
 
 /*  Improved scheduling algorithm */ 
-void better_scheduler(pqueue_t *incoming_processes, CPU_t **CPUs, int num_processors){
+void better_scheduler2(pqueue_t *incoming_processes, CPU_t **CPUs, int num_processors){
 
     update_priorities(CPUs, num_processors);
 
@@ -275,7 +275,8 @@ pqueue_t *sort_processes_reverse(pqueue_t *incoming_processes){
     process_t *curr = NULL;
 
     while ((curr = pq_dequeue(incoming_processes))){
-        pq_enqueue(sorted_processes, curr, 3, curr->arrival_time, -(curr->remaining_time), curr->pid);
+        pq_enqueue(sorted_processes, curr, 3, curr->arrival_time, -(curr->remaining_time), 
+                    curr->pid);
     }
 
     return sorted_processes;
@@ -293,3 +294,44 @@ void update_priorities_v2(CPU_t **CPUs, int num_processors){
     }
 }
 
+
+/*  Improved scheduling algorithm */ 
+void better_scheduler(pqueue_t *incoming_processes, CPU_t **CPUs, int num_processors){
+
+        // update priorities of existing processes
+    update_priorities(CPUs, num_processors);
+    
+    // sort incoming processes by remaining time (descending)
+    pqueue_t *sorted_processes = sort_processes_reverse(incoming_processes);
+    process_t *process = NULL;
+
+    // assign all processes to CPUs
+    process = pq_dequeue(sorted_processes);
+    while (process){
+
+        // assign to fastest CPU
+        int fastest = find_fastest_CPU(CPUs, num_processors);
+        int longest_time = find_longest_CPU_time(CPUs, num_processors);
+
+        while (process && CPUs[fastest]->total_remaining_time <= longest_time){
+            pq_enqueue(CPUs[fastest]->process_queue, process, 2, process->remaining_time,
+                    process->pid);
+            CPUs[fastest]->total_remaining_time += process->remaining_time; 
+            process = pq_dequeue(sorted_processes);
+        } 
+    }
+
+    pq_free_queue(sorted_processes);
+}
+
+int find_longest_CPU_time(CPU_t **CPUs, int num_processors){
+
+    int longest_time = 0;
+    for (int i = 0; i < num_processors; i++){
+        if (CPUs[i]->total_remaining_time > longest_time){
+            longest_time = CPUs[i]->total_remaining_time;
+        }
+    }
+
+    return longest_time;
+}
