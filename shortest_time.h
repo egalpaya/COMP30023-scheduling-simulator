@@ -9,9 +9,14 @@
 
 #include "structs.h"
 
-/*  Schedules incoming processes and assigns them to CPUs using shortest    */
+/*  Schedules incoming processes and assigns them to 2 CPUs using shortest  */
 /*  time remaining algorithm                                                */
-void shortest_time_remaining(pqueue_t *incoming_processes, CPU_t **CPUs,
+void shortest_time_remaining_2p(pqueue_t *incoming_processes, CPU_t **CPUs,
+                            int num_processors);
+
+/*  Schedules incoming processes and assigns them to n CPUs using shortest  */
+/*  time remaining algorithm                                                */
+void shortest_time_remaining_np(pqueue_t *incoming_processes, CPU_t **CPUs,
                             int num_processors);
 
 /*  Returns a priority queue of the incoming processes, sorted by remaining */
@@ -39,6 +44,17 @@ int find_fastest_CPU(CPU_t **CPUs, int num_processors);
 /*  Updates priorities of processes to reflect remaining time   */
 void update_priorities(CPU_t **CPUs, int num_processors);
 
-pqueue_t *sort_processes2(pqueue_t *incoming_processes);
+/*  Returns the index of CPU with most remaining execution time    */
+int find_slowest_CPU(CPU_t **CPUs, int num_processors);
+
+/*  Extracts all processes from all CPUs    */
+void extract_processes(CPU_t **CPUs, int num_processors, pqueue_t *sorted_processes);
+
+/*  Returns a priority queue of the incoming processes, sorted by remaining */
+/*  time (descending) and then by pid (pseudo heapsort in a way...)         */
+pqueue_t *sort_processes_reverse(pqueue_t *incoming_processes);
+
+/*  Updates priorities of processes to reflect remaining time   */
+void update_priorities_v2(CPU_t **CPUs, int num_processors);
 
 #endif

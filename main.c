@@ -47,6 +47,9 @@ void parse_args(int argc, char **argv, char **filename, int *num_processors,
                 break;
             case 'p':
                 *num_processors = atoi(optarg);
+                if (*num_processors == 2){
+                    *scheduler = shortest_time_remaining_2p;
+                }
                 break;
             case 'c':
                 *scheduler = better_scheduler;
@@ -62,7 +65,7 @@ int main(int argc, char **argv){
     // parse args
     int num_processors;
     char *filename = NULL;
-    void (*scheduler)(pqueue_t *, CPU_t **, int) = shortest_time_remaining;
+    void (*scheduler)(pqueue_t *, CPU_t **, int) = shortest_time_remaining_np;
     parse_args(argc, argv, &filename, &num_processors, &scheduler);
 
     // read in all processes
