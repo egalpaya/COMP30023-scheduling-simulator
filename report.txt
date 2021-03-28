@@ -1,0 +1,1 @@
+Improved algorithm sorts processes by largest remaining time. If no processes parallelised, it fills up fastest CPU's queue until it is the slowest (maximise smallest sum/greedy number partitioning). If parallelised processes exist, it assigns them to fastest CPU as normal (as subprocesses should be spread amongst CPUs).
