@@ -12,8 +12,6 @@
 #include "simulator.h"
 #include "schedulers.h"
 
-
-
 /*  Reads input, converts lines to process structs, and adds them to a queue */
 /*  Returns the queue   */
 pqueue_t *read_lines(char filename[]){

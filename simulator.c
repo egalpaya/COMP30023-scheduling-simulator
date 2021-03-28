@@ -50,7 +50,8 @@ void print_started_processes(pqueue_t *started, int time){
 
     process_t *process;
     while (get_length(started) > 0){
-        // we previously assigned the CPU no. as the priority in the queue
+
+        // we previously assigned the CPU no. as the priority, so get_priority returns CPU no
         int CPU_no = get_priority(started, 1, 0);
         process = (process_t *)pq_dequeue(started);
 
@@ -128,10 +129,12 @@ void finish_processes(pqueue_t *finished, int time, double *total_turnaround,
 
 /*  Initialises simulation variables, returning pointer to array of CPUs    */
 CPU_t **init_simulation(int num_processors){
+
     CPU_t **CPUs = (CPU_t **)malloc(sizeof(CPU_t*)*num_processors);
     assert(CPUs);
 
     for (int i = 0; i < num_processors; i++){
+
         CPU_t *CPU = (CPU_t *)malloc(sizeof(CPU_t));
         assert(CPU);
 
@@ -148,7 +151,9 @@ CPU_t **init_simulation(int num_processors){
 /*  Frees variables used in simulation  */
 void kill_simulation(CPU_t **CPUs, int num_processors, pqueue_t *all_processes,
                     pqueue_t *incoming_processes, pqueue_t *finished, pqueue_t *started){
+
     for (int i = 0; i < num_processors; i++){
+
         pq_free_queue(CPUs[i]->process_queue);
         free(CPUs[i]);
     }
@@ -210,7 +215,8 @@ void run_simulation(int num_processors, pqueue_t *all_processes,
 
         // run the cpus
         idle = run_cpus(CPUs, num_processors, time, started, finished);
-            
+        
+        // handle started and finished processes (printing/statistics)
         print_started_processes(started, time);
         finish_processes(finished, time+1, &total_turnaround, &max_overhead, &total_overhead,
                         &num_proc_left);

@@ -5,3 +5,4 @@
 !/testcases/*
 !.gitignore
 multiway.c
+!report.txt
